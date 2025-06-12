@@ -53,7 +53,7 @@ If the audio files are missing, the audio feature will break — some browsers m
 
 Want the latest, or need an older version?  
 Hit up the GitHub releases page:  
-👉 [https://github.com/yourusername/acaptcha/releases](https://github.com/yourusername/acaptcha/releases)
+👉 [https://github.com/arooshbd2122/aCAPTCHA/releases](https://github.com/arooshbd2122/aCAPTCHA/releases)
 
 ---
 
