@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aCAPTCHA - Next Generation Verification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Light Theme */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-accent: #3b82f6;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-success: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            --gradient-warning: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-accent: #60a5fa;
+            --border-color: #334155;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-x: hidden;
+        }
+
+        .hero-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--gradient-primary);
+            z-index: -2;
+            opacity: 0.05;
+        }
+
+                /* Alert Boxes */
+        .alert {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            border: 1px solid;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .alert-warning {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: var(--accent-orange);
+            color: var(--text-primary);
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--accent-green);
+            color: var(--text-primary);
+        }
+
+        .alert-icon {
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+
+
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-accent);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-tertiary);
+            transform: translateY(-1px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            background: var(--gradient-primary);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="0.5" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Main Content */
+        .main {
+            padding: 4rem 0;
+        }
+
+        .section {
+            margin-bottom: 5rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Demo Section */
+        .demo-container {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .captcha-demo {
+            text-align: center;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: var(--bg-primary);
+            border-radius: 16px;
+            border: 2px dashed var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .captcha-demo:hover {
+            border-color: var(--accent-blue);
+            box-shadow: var(--shadow-md);
+        }
+
+        .demo-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .demo-btn {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-blue);
+        }
+
+        .demo-btn.primary {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+        }
+
+        .demo-btn.secondary {
+            background: var(--gradient-success);
+            color: white;
+            border: none;
+        }
+
+        .demo-btn.tertiary {
+            background: var(--gradient-warning);
+            color: white;
+            border: none;
+        }
+
+        /* Status Display */
+        .status-card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .status-card.verified {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-color: var(--accent-green);
+            color: #065f46;
+        }
+
+        [data-theme="dark"] .status-card.verified {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+            color: #6ee7b7;
+        }
+
+        .status-card.unverified {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-color: var(--accent-red);
+            color: #991b1b;
+        }
+
+        [data-theme="dark"] .status-card.unverified {
+            background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+            color: #fca5a5;
+        }
+
+        /* Analytics */
+        .analytics-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .analytics-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .analytics-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .analytics-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-accent);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .analytics-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .table-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .table-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .table-content {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        .pro {
+            color: var(--accent-green);
+            font-weight: 500;
+        }
+
+        .con {
+            color: var(--accent-red);
+            font-weight: 500;
+        }
+
+        .neutral {
+            color: var(--accent-orange);
+            font-weight: 500;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-primary);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Event Log */
+        .event-log {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .event-log h4 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .event-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .event-item:last-child {
+            border-bottom: none;
+        }
+
+        .timestamp {
+            color: var(--text-accent);
+            font-weight: 500;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        /* Code Examples */
+        .code-block {
+            position: relative;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+
+        .code-block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-language {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .code-language-icon {
+            font-size: 1.1rem;
+        }
+
+        .code-copy-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.4rem 0.8rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .code-copy-btn:hover {
+            background: var(--bg-primary);
+            color: var(--text-accent);
+            border-color: var(--text-accent);
+        }
+
+        .code-copy-btn.copied {
+            background: var(--accent-green);
+            color: white;
+            border-color: var(--accent-green);
+        }
+
+        .code-content {
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        .code-content pre {
+            margin: 0;
+            padding: 0;
+        }
+
+        .code-content code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+
+        /* Custom scrollbar for code blocks */
+        .code-content::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .code-content::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        .code-content::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .code-content::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Line numbers */
+        .code-content pre {
+            counter-reset: line;
+        }
+
+        .code-content code {
+            display: block;
+            padding-left: 2rem;
+            position: relative;
+        }
+
+        .code-content code::before {
+            counter-increment: line;
+            content: counter(line);
+            position: absolute;
+            left: 0;
+            color: var(--text-secondary);
+            opacity: 0.5;
+            width: 1.5rem;
+            text-align: right;
+        }
+
+        /* Add this to your existing CSS styles section */
+        .cdn-link-box {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .cdn-link-box:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-blue);
+        }
+
+        .cdn-link-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .cdn-link-title {
+            color: var(--text-accent);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .cdn-copy-btn {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .cdn-copy-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .cdn-link-code {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            word-break: break-all;
+            margin-bottom: 1rem;
+        }
+
+        .cdn-usage-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .cdn-usage-title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .cdn-usage-code {
+            background: var(--bg-tertiary);
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .hero {
+                padding: 2rem 0;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                gap: 2rem;
+            }
+
+            .main {
+                padding: 2rem 0;
+            }
+
+            .section {
+                margin-bottom: 3rem;
+            }
+
+            .demo-container {
+                padding: 2rem;
+            }
+
+            .demo-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            th,
+            td {
+                padding: 0.75rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: var(--text-accent);
+            background: var(--bg-secondary);
+        }
+                /* Responsive Header & Hamburger */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            z-index: 120;
+        }
+        .hamburger span {
+            display: block;
+            height: 4px;
+            width: 28px;
+            margin: 4px auto;
+            background: var(--text-accent);
+            border-radius: 2px;
+            transition: 0.3s;
+        }
+        .hamburger.active span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
+        @media (max-width: 900px) {
+            .header-content {
+                flex-wrap: wrap;
+            }
+            .header-controls {
+                position: fixed;
+                top: 0;
+                right: -100vw;
+                width: 70vw;
+                max-width: 320px;
+                height: 100vh;
+                background: var(--bg-primary);
+                box-shadow: -2px 0 16px rgba(0,0,0,0.08);
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0;
+                padding: 80px 24px 24px 24px;
+                transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+                z-index: 110;
+            }
+            .header-controls.open {
+                right: 0;
+            }
+            .nav-link, .theme-toggle {
+                width: 100%;
+                text-align: left;
+                margin-bottom: 8px;
+                padding: 12px 0 12px 8px;
+                border-radius: 8px;
+                font-size: 1.1rem;
+            }
+            .theme-toggle {
+                margin-top: 12px;
+            }
+            .hamburger {
+                display: flex;
+            }
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 0 8px;
+            }
+            .header-controls {
+                width: 90vw;
+                max-width: none;
+                padding: 80px 12px 12px 12px;
+            }
+        }
+
+        /* Prevent horizontal scroll on all devices */
+html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw;
+    position: relative;
+}
+
+        /* ...existing code... */
+
+    </style>
+</head>
+
+<body>
+    <div class="hero-background"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <div class="logo-icon">🛡️</div>
+                    <span>aCAPTCHA</span>
+                </a>
+                <button class="hamburger" id="hamburger-btn" aria-label="Open navigation" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <div class="header-controls" id="header-controls">
+                    <a href="index.html" class="nav-link">Main</a>
+                    <a href="documentation.html" class="nav-link">Documentation</a>
+                    <a href="tos.html" class="nav-link">ToS</a>
+                    <a href="privacy.html" class="nav-link">Privacy Policy</a>
+                    <button class="theme-toggle" onclick="toggleTheme()">
+                        <span id="theme-icon">🌙</span>
+                        <span id="theme-text">Dark Mode</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content fade-in-up">
+                <h1>Simple. Private. Yours.</h1>
+                <p>aCAPTCHA is a free and open-source alternative to commercial CAPTCHA systems. It’s not the most
+                    advanced solution out there — and it’s not trying to be. But for many simple, personal, or low-risk
+                    projects, it gets the job done without tracking users or locking features behind a paywall.</p>
+
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">99.9%</span>
+                        <span class="stat-label">Uptime</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">Zero</span>
+                        <span class="stat-label">Data Tracking</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Open Source</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Demo Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Interactive Demo</h2>
+                    <p class="section-subtitle">Experience the power and flexibility of aCAPTCHA with our live
+                        demonstration featuring real-time analytics and customization options.</p>
+                </div>
+
+                <div class="demo-container">
+                    <div class="captcha-demo">
+                        <h3 style="margin-bottom: 1.5rem; color: var(--text-secondary);">Try the Enhanced CAPTCHA</h3>
+                        <!-- Placeholder for CAPTCHA element -->
+                        <div
+                            style="min-height: 100px; display: flex; align-items: center; justify-content: center; background: var(--bg-tertiary); border-radius: 12px; border: 2px dashed var(--border-color);">
+                            <!-- Basic implementation -->
+                            <captcha-element status="null" sound-enabled="true" dark-mode="auto" type="both"
+                                difficulty="adaptive">
+                            </captcha-element>
+                        </div>
+                    </div>
+
+                    <div class="demo-controls">
+                        <button class="demo-btn primary" onclick="checkStatus()">
+                            📊 Check Status
+                        </button>
+                        <button class="demo-btn secondary" onclick="resetCaptcha()">
+                            🔄 Reset CAPTCHA
+                        </button>
+                        <button class="demo-btn tertiary" onclick="getAnalytics()">
+                            📈 View Analytics
+                        </button>
+                        <button class="demo-btn" onclick="setCaptchaType('both')">
+                            🔄 Both Modes
+                        </button>
+                        <button class="demo-btn" onclick="setCaptchaType('visual')">
+                            👁️ Visual Only
+                        </button>
+                        <button class="demo-btn" onclick="setCaptchaType('audio')">
+                            🔊 Audio Only
+                        </button>
+                    </div>
+
+                    <div id="status-display" class="status-card" style="display: none;"></div>
+
+                    <div class="analytics-card" id="analytics-display" style="display: none;">
+                        <h4 style="margin-bottom: 1rem;">📊 Real-time Performance Analytics</h4>
+                        <div class="analytics-grid">
+                            <div class="analytics-item">
+                                <span class="analytics-value" id="success-rate">0%</span>
+                                <span class="analytics-label">Success Rate</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-value" id="avg-time">0s</span>
+                                <span class="analytics-label">Average Time</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-value" id="total-attempts">0</span>
+                                <span class="analytics-label">Total Attempts</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-value" id="difficulty-level">Easy</span>
+                                <span class="analytics-label">Current Difficulty</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="event-log" id="event-log">
+                        <h4>📝 Real-time Event Log</h4>
+                        <div id="events-container"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Powerful Features</h2>
+                    <p class="section-subtitle">Built with modern web standards and user experience in mind, offering
+                        unprecedented customization and control.</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔄</div>
+                        <h3 class="feature-title">Seamless Reset Capability</h3>
+                        <p class="feature-description">Reset verification challenges multiple times without page
+                            refreshes, maintaining user context and improving experience flow.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎵</div>
+                        <h3 class="feature-title">Rich Audio Feedback</h3>
+                        <p class="feature-description">Interactive sound effects with intelligent toggling, providing
+                            enhanced accessibility and user engagement without being intrusive.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌙</div>
+                        <h3 class="feature-title">Adaptive Theming</h3>
+                        <p class="feature-description">Automatic dark/light mode detection with manual override,
+                            ensuring optimal visibility across all environments and user preferences.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💡</div>
+                        <h3 class="feature-title">Intelligent Hints</h3>
+                        <p class="feature-description">Context-aware assistance that guides users through challenges
+                            without compromising security or revealing solutions.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3 class="feature-title">Advanced Analytics</h3>
+                        <p class="feature-description">Comprehensive performance metrics, success rates, and user
+                            behavior insights without compromising privacy or collecting personal data.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3 class="feature-title">Adaptive Difficulty</h3>
+                        <p class="feature-description">Dynamic challenge scaling from Easy to Extreme based on threat
+                            assessment and user interaction patterns.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3 class="feature-title">Privacy-First Design</h3>
+                        <p class="feature-description">Zero data collection, no third-party dependencies, and complete
+                            offline functionality ensuring user privacy is never compromised.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">♿</div>
+                        <h3 class="feature-title">Universal Accessibility</h3>
+                        <p class="feature-description">WCAG 2.1 AA compliant with screen reader support, keyboard
+                            navigation, and alternative verification methods for all users.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comparison Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Comprehensive Comparison</h2>
+                    <p class="section-subtitle">See how aCAPTCHA compares to traditional solutions in terms of
+                        privacy, customization, and user experience.</p>
+                </div>
+
+                <div class="comparison-table">
+                    <div class="table-header">
+                        <h3>📊 aCAPTCHA vs Google reCAPTCHA</h3>
+                        <p>A detailed feature and capability comparison</p>
+                    </div>
+                    <div class="table-content">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>aCAPTCHA</th>
+                                    <th>Google reCAPTCHA v2/v3</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Pricing Model</strong></td>
+                                    <td class="pro">✅ Free and open source</td>
+                                    <td class="neutral">⚠️ Free but proprietary</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Privacy & Data Collection</strong></td>
+                                    <td class="pro">✅ Zero tracking or data sharing</td>
+                                    <td class="con">❌ Extensive behavior tracking, tied to Google ecosystem</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Customization Options</strong></td>
+                                    <td class="pro">✅ Fully customizable UI, behavior, and language</td>
+                                    <td class="con">❌ Minimal to no customization options</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Accessibility Compliance</strong></td>
+                                    <td class="pro">✅ WCAG 2.1 AA compliant with comprehensive audio support</td>
+                                    <td class="con">❌ Often frustrating for screen readers and disabled users</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Bot Detection Method</strong></td>
+                                    <td class="neutral">⚠️ Challenge-based with adaptive difficulty</td>
+                                    <td class="pro">✅ Advanced ML + behavioral profiling</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Setup Complexity</strong></td>
+                                    <td class="pro">✅ Self-hosted, minimal configuration required</td>
+                                    <td class="neutral">⚠️ Easy integration but requires Google account/API keys</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Offline Capability</strong></td>
+                                    <td class="pro">✅ Fully functional offline</td>
+                                    <td class="con">❌ Requires internet connection to Google servers</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Performance Impact</strong></td>
+                                    <td class="pro">✅ Lightweight, no external dependencies</td>
+                                    <td class="con">❌ Additional HTTP requests and external script loading</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>User Experience</strong></td>
+                                    <td class="pro">✅ Consistent, predictable challenges</td>
+                                    <td class="con">❌ Unpredictable difficulty, sometimes unsolvable</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Vendor Lock-in Risk</strong></td>
+                                    <td class="pro">✅ Open source, community-driven</td>
+                                    <td class="con">❌ Dependent on Google's service availability</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Analytics & Insights</strong></td>
+                                    <td class="pro">✅ Detailed local analytics without privacy concerns</td>
+                                    <td class="neutral">⚠️ Limited insights, data stored by Google</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pros and Cons Summary -->
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-top: 3rem;">
+                    <div class="feature-card">
+                        <div class="feature-icon">✅</div>
+                        <h3 class="feature-title">aCAPTCHA Advantages</h3>
+                        <ul style="color: var(--text-secondary); line-height: 1.8; list-style: none; padding: 0;">
+                            <li>🔒 <strong>Complete Privacy:</strong> No data collection or user tracking</li>
+                            <li>🎨 <strong>Full Customization:</strong> Adapt to any design system</li>
+                            <li>♿ <strong>True Accessibility:</strong> Works for all users, all abilities</li>
+                            <li>🌐 <strong>Offline Ready:</strong> Functions without internet dependency</li>
+                            <li>⚡ <strong>Lightweight:</strong> Minimal performance impact</li>
+                            <li>🛠️ <strong>Open Source:</strong> Transparent, community-driven development</li>
+                            <li>💰 <strong>Cost Effective:</strong> No usage limits or hidden fees</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚠️</div>
+                        <h3 class="feature-title">Considerations</h3>
+                        <ul style="color: var(--text-secondary); line-height: 1.8; list-style: none; padding: 0;">
+                            <li>🤖 <strong>Bot Detection:</strong> Less sophisticated than ML-based solutions</li>
+                            <li>🔧 <strong>Self-Hosting:</strong> Requires basic technical setup</li>
+                            <li>📈 <strong>Scaling:</strong> Need to manage infrastructure growth</li>
+                            <li>🔄 <strong>Updates:</strong> Manual maintenance of security patches</li>
+                            <li>📊 <strong>Analytics:</strong> Limited compared to enterprise solutions</li>
+                            <li>🎯 <strong>Targeting:</strong> May need additional fraud detection layers</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Download Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Download & Import</h2>
+                    <p class="section-subtitle">Get the latest aCAPTCHA files for your project or use our CDN links for instant integration.</p>
+                </div>
+
+                <div class="demo-container">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                        <!-- Direct Downloads -->
+                        <div class="feature-card">
+                            <div class="feature-icon">📥</div>
+                            <h3 class="feature-title">Direct Downloads</h3>
+                            <p class="feature-description" style="margin-bottom: 1.5rem;">Download the complete aCAPTCHA package to your local machine.</p>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <button class="demo-btn primary" onclick="downloadFile('api/downloads/Captcha-v1.1.zip', 'aCAPTCHA-v1.1.zip')">
+                                    📦 Download v1.1 (Latest)
+                                </button>
+                                <button class="demo-btn secondary" onclick="showLegacyWarning()">
+                                    📦 Download v1.0 (Legacy)
+                                </button>
+
+                                <div class="alert alert-warning" id="legacy-warning" style="display: none; margin-top: 1rem; padding: 1rem; background: var(--bg-warning); border-radius: 8px; color: var(--text-primary);">
+                                   <span class="alert-icon">⚠️</span>
+                                   <div>
+                                      <strong>Critical Note:</strong> V1.0 is no longer supported and may contain security vulnerabilities. <s>we</s> I  recommend using the latest version for all new projects.
+                                   </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CDN Import -->
+                        <div class="feature-card">
+                            <div class="feature-icon">🌐</div>
+                            <h3 class="feature-title">CDN Import</h3>
+                            <p class="feature-description" style="margin-bottom: 1.5rem;">Use our CDN links for instant integration without downloads.</p>
+                            
+                            <div style="margin-bottom: 1rem;">
+                                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-primary);">
+                                    Base URL:
+                                </label>
+                                <input type="text" 
+                                       id="cdn-base-url" 
+                                       editable="False"
+                                       value="https://your-repl-url.replit.dev"
+                                       placeholder="Enter your deployment URL"
+                                       style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-primary); color: var(--text-primary);">
+                            </div>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <button class="demo-btn primary" onclick="generateCDNLink('v1.1')">
+                                    🔗 Generate v1.1 CDN Link
+                                </button>
+                                <button class="demo-btn secondary" onclick="generateCDNLink('v1.0')">
+                                    🔗 Generate v1.0 CDN Link
+                                </button>
+                            </div>
+                        </div>
+<div class="feature-card">
+    <div class="feature-icon">🐙</div>
+    <h3 class="feature-title">GitHub Repository</h3>
+    <p class="feature-description" style="margin-bottom: 1.5rem;">
+        Download or fork it from the official git repo; all versions can be found on releases.
+    </p>
+    
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <button class="demo-btn github" onclick="window.open('https://github.com/arooshbd2024/aCAPTCHA', '_blank')">
+            <span style="display: flex; align-items: center; gap: 8px;">
+                <svg height="16" viewBox="0 0 16 16" width="16" style="fill: currentColor;">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                Open GitHub Repository
+            </span>
+        </button>
+    </div>
+</div>
+
+
+                    </div>
+
+                    <!-- Generated CDN Links Display -->
+                    <div id="cdn-links-display" style="display: none; margin-top: 2rem; padding: 1.5rem; background: var(--bg-tertiary); border-radius: 12px; border: 1px solid var(--border-color);">
+                        <h4 style="margin-bottom: 1rem; color: var(--text-primary);">🔗 Generated CDN Links</h4>
+                        <div id="cdn-links-content"></div>
+                    </div>
+
+                    <!-- Usage Examples -->
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color);">
+                        <h4 style="margin-bottom: 1rem; color: var(--text-primary);">📖 Quick Integration Examples</h4>
+                        
+                        <div class="code-block" data-language="HTML" style="margin-bottom: 1rem;">
+                            <pre><code>&lt;!-- Using CDN (Replace with your actual URL) --&gt;
+&lt;script src="https://your-repl-url.replit.dev/captcha-v1.1.js"&gt;&lt;/script&gt;
+
+&lt;!-- Basic implementation --&gt;
+&lt;captcha-element 
+    status="null" 
+    sound-enabled="true" 
+    dark-mode="auto" 
+    type="both"
+    difficulty="adaptive"&gt;
+&lt;/captcha-element&gt;</code></pre>
+                        </div>
+
+                        <div class="code-block" data-language="HTML">
+                            <pre><code>&lt;!-- Using local file --&gt;
+&lt;script src="./js/aCAPTCHA-v1.1.js"&gt;&lt;/script&gt;
+
+&lt;!-- Advanced configuration --&gt;
+&lt;captcha-element 
+    type="visual"
+    theme="dark"
+    language="en"
+    hints="true"
+    analytics="true"
+    retry-limit="3"&gt;
+&lt;/captcha-element&gt;</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Implementation Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2 class="section-title">Implementation Guide</h2>
+                    <p class="section-subtitle">Get started with aCAPTCHA in minutes with our comprehensive
+                        documentation and examples.</p>
+                </div>
+
+                <div
+                    style="background: var(--bg-secondary); border-radius: 16px; padding: 2rem; border: 1px solid var(--border-color);">
+                    <h3 style="margin-bottom: 1.5rem; color: var(--text-primary);">Quick Start Integration</h3>
+
+                    <div class="code-block" data-language="HTML">
+                        <pre><code>
+&lt;!-- Include the aCAPTCHA script --&gt;
+&lt;script src="https://cdn.acaptcha.pro/v1.1/acaptcha.min.js"&gt;&lt;/script&gt;
+
+&lt;!-- Basic implementation --&gt;
+&lt;captcha-element 
+    status="null" 
+    sound-enabled="true" 
+    dark-mode="auto" 
+    type="both"
+    difficulty="adaptive"&gt;
+    &lt;/captcha-element&gt;
+
+&lt;!-- Advanced configuration --&gt;
+&lt;captcha-element 
+    type="visual"
+    theme="custom"
+    language="en"
+    hints="true"
+    analytics="true"
+    retry-limit="3"&gt;
+&lt;/captcha-element&gt;
+                        </code></pre>
+
+                    <div class="code-block" data-language="JavaScript">
+                        <pre><code>
+// Event handling and API usage
+const captcha = document.querySelector('captcha-element');
+
+// Listen for verification events
+captcha.addEventListener('verified', (event) => {
+    const { verified, timeSpent, attempts, difficulty } = event.detail;
+    console.log('Verification successful!', {
+        verified,
+        timeSpent: `${timeSpent}ms`,
+        attempts,
+        difficulty
+    });
+
+    // Proceed with form submission
+    if (verified) {
+        submitForm();
+    }
+});
+
+// Listen for status changes
+captcha.addEventListener('statuschange', (event) => {
+    console.log('Status changed to:', event.detail.status);
+    updateUI(event.detail.status);
+});
+
+// Listen for reset events
+captcha.addEventListener('reset', () => {
+    console.log('CAPTCHA reset - ready for new attempt');
+    clearFormErrors();
+});
+
+// API Methods
+console.log('Current status:', captcha.getStatus());
+console.log('Is verified:', captcha.isValid());
+console.log('Analytics data:', captcha.getAnalytics());
+
+// Programmatic control
+captcha.reset();                                    // Reset the challenge
+captcha.setAttribute('difficulty', 'hard');        // Change difficulty
+captcha.setAttribute('theme', 'dark');             // Switch theme
+captcha.setAttribute('sound-enabled', 'false');    // Disable sounds
+                        </code></pre>
+                    </div>
+
+                    <div class="code-block" data-language="JavaScript">
+                        <pre><code>
+// Advanced analytics integration
+function handleCaptchaAnalytics() {
+    const analytics = captcha.getAnalytics();
+
+    // Send to your analytics service
+    trackEvent('captcha_analytics', {
+        success_rate: analytics.successRate,
+        average_time: analytics.averageTime,
+        total_attempts: analytics.totalAttempts,
+        difficulty_distribution: analytics.difficultyCounts,
+        accessibility_usage: analytics.audioModeUsage
+    });
+
+    // Update dashboard
+    updateDashboard(analytics);
+}
+
+// Form integration example
+function validateFormWithCaptcha() {
+    const form = document.getElementById('signup-form');
+    const captcha = document.querySelector('captcha-element');
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        if (!captcha.isValid()) {
+            showError('Please complete the security verification');
+            captcha.focus(); // Accessibility-friendly focus
+            return;
+        }
+
+        // Proceed with form submission
+        const formData = new FormData(form);
+        formData.append('captcha_verified', true);
+        formData.append('captcha_token', captcha.getToken());
+
+        submitForm(formData);
+    });
+}
+                        </code></pre>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: var(--bg-secondary); padding: 3rem 0; margin-top: 4rem; border-top: 1px solid var(--border-color);">
+        <div class="container">
+            <div style="text-align: center; color: var(--text-secondary);">
+                <p style="margin-bottom: 1rem;">🛡️ aCAPTCHA v1.1 - Lightweight, Secure, No-Backend Required</p>
+                <p style="font-size: 0.9rem;">Built with modern web standards • Self-contained • Privacy-focused</p>
+                <p style="font-size: 0.9rem;">Just a normal project • Made by Aroosh (Arshan Aroosh)</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="api/captcha-v1.1.js"></script>
+
+    <!-- Placeholder for CAPTCHA script -->
+    <script>
+        // Theme management
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Update theme toggle button
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+
+            if (newTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
+            }
+        }
+
+        // Initialize theme from localStorage or system preference
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            const initialTheme = savedTheme || systemTheme;
+
+            document.documentElement.setAttribute('data-theme', initialTheme);
+
+            const themeIcon = document.getElementById('theme-icon');
+            const themeText = document.getElementById('theme-text');
+
+            if (initialTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
+            }
+        }
+
+        // Demo functionality with actual CAPTCHA integration
+        let eventCount = 0;
+        let captchaElement = null;
+
+        function logEvent(message, type = 'info') {
+            eventCount++;
+            const eventsContainer = document.getElementById('events-container');
+            if (!eventsContainer) return;
+
+            const eventItem = document.createElement('div');
+            eventItem.className = 'event-item';
+
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : '📝';
+
+            eventItem.innerHTML = `
+                                        <span>${icon}</span>
+                                        <span class="timestamp">${timestamp}</span>
+                                        <span>${message}</span>
+                                    `;
+
+            eventsContainer.insertBefore(eventItem, eventsContainer.firstChild);
+
+            // Keep only last 15 events
+            if (eventsContainer.children.length > 15) {
+                eventsContainer.removeChild(eventsContainer.lastChild);
+            }
+        }
+
+        function checkStatus() {
+            if (!captchaElement) {
+                logEvent('CAPTCHA element not found', 'error');
+                return;
+            }
+
+            const status = captchaElement.getStatus();
+            const isValid = captchaElement.isValid();
+
+            const statusDisplay = document.getElementById('status-display');
+            if (statusDisplay) {
+                statusDisplay.style.display = 'block';
+                statusDisplay.className = `status-card ${isValid ? 'verified' : 'unverified'}`;
+                statusDisplay.innerHTML = `
+                                            <div style="display: flex; align-items: center; gap: 12px; justify-content: center;">
+                                                <span style="font-size: 1.5rem;">${isValid ? '✅' : '❌'}</span>
+                                                <div>
+                                                    <div><strong>Status:</strong> ${status || 'null'}</div>
+                                                    <div><strong>Valid:</strong> ${isValid ? 'Yes' : 'No'}</div>
+                                                </div>
+                                            </div>
+                                        `;
+            }
+
+            logEvent(`Status checked: ${status} (Valid: ${isValid})`, isValid ? 'success' : 'info');
+        }
+
+        function resetCaptcha() {
+            if (!captchaElement) {
+                logEvent('CAPTCHA element not found', 'error');
+                return;
+            }
+
+            captchaElement.reset();
+
+            const statusDisplay = document.getElementById('status-display');
+            if (statusDisplay) {
+                statusDisplay.style.display = 'none';
+            }
+
+            const analyticsDisplay = document.getElementById('analytics-display');
+            if (analyticsDisplay) {
+                analyticsDisplay.style.display = 'none';
+            }
+
+            logEvent('CAPTCHA reset by user', 'warning');
+        }
+
+        function getAnalytics() {
+            if (!captchaElement) {
+                logEvent('CAPTCHA element not found', 'error');
+                return;
+            }
+
+            const analytics = captchaElement.getAnalytics();
+
+            const successRateEl = document.getElementById('success-rate');
+            const avgTimeEl = document.getElementById('avg-time');
+            const totalAttemptsEl = document.getElementById('total-attempts');
+            const difficultyLevelEl = document.getElementById('difficulty-level');
+
+            if (successRateEl) successRateEl.textContent = Math.round(analytics.successRate) + '%';
+            if (avgTimeEl) avgTimeEl.textContent = Math.round(analytics.averageTime) + 's';
+            if (totalAttemptsEl) totalAttemptsEl.textContent = analytics.totalAttempts;
+
+            // Determine current difficulty based on analytics
+            const difficulties = Object.keys(analytics.difficultyCounts);
+            const lastDifficulty = difficulties.reduce((a, b) =>
+                analytics.difficultyCounts[a] > analytics.difficultyCounts[b] ? a : b
+            );
+            if (difficultyLevelEl) difficultyLevelEl.textContent = lastDifficulty.charAt(0).toUpperCase() + lastDifficulty.slice(1);
+
+            const analyticsDisplay = document.getElementById('analytics-display');
+            if (analyticsDisplay) {
+                analyticsDisplay.style.display = 'block';
+            }
+
+            logEvent(`Analytics updated - Success: ${Math.round(analytics.successRate)}%, Attempts: ${analytics.totalAttempts}`, 'info');
+        }
+
+        function setCaptchaType(type) {
+            if (!captchaElement) {
+                logEvent('CAPTCHA element not found', 'error');
+                return;
+            }
+
+            // Validate type
+            const validTypes = ['both', 'visual', 'audio'];
+            const actualType = validTypes.includes(type) ? type : 'both';
+
+            captchaElement.setAttribute('type', actualType);
+
+            const typeNames = {
+                'both': 'Visual + Audio',
+                'visual': 'Visual Only',
+                'audio': 'Audio Only'
+            };
+
+            logEvent(`CAPTCHA type changed to: ${typeNames[actualType]}`, 'info');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeTheme();
+
+            // Wait for CAPTCHA element to be ready
+            setTimeout(() => {
+                captchaElement = document.querySelector('captcha-element');
+
+                if (captchaElement) {
+                    // Add event listeners for CAPTCHA events
+                    captchaElement.addEventListener('verified', (event) => {
+                        const {verified, timeSpent, attempts, difficulty} = event.detail;
+                        logEvent(`CAPTCHA verified! Time: ${timeSpent}s, Attempts: ${attempts}, Difficulty: ${difficulty}`, 'success');
+                        console.log('CAPTCHA verified!', event.detail);
+                    });
+
+                    captchaElement.addEventListener('statuschange', (event) => {
+                        logEvent(`Status changed to: ${event.detail.status}`, 'info');
+                        console.log('Status changed to:', event.detail.status);
+                    });
+
+                    captchaElement.addEventListener('reset', () => {
+                        logEvent('CAPTCHA reset', 'warning');
+                        console.log('CAPTCHA reset');
+                    });
+
+                    logEvent('aCAPTCHA demo initialized - Ready for interaction', 'success');
+                } else {
+                    logEvent('Error: CAPTCHA element not found', 'error');
+                }
+            }, 500);
+
+            // Simulate some initial activity
+            setTimeout(() => {
+                logEvent('Demo environment loaded successfully', 'success');
+            }, 1000);
+        });
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+            if (!localStorage.getItem('theme')) {
+                const newTheme = e.matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                logEvent(`System theme changed to ${newTheme} mode`, 'info');
+            }
+        });
+
+        // Add smooth scroll behavior for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Performance monitoring
+        window.addEventListener('load', function () {
+            const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+            logEvent(`Page loaded in ${Math.round(loadTime)}ms`, 'info');
+        });
+
+        // Download functionality
+        function downloadFile(filename, downloadName) {
+            fetch(filename)
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = downloadName;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    logEvent(`Downloaded ${downloadName}`, 'success');
+                })
+                .catch(error => {
+                    console.error('Download failed:', error);
+                    logEvent(`Download failed: ${filename}`, 'error');
+                });
+        }
+
+        function downloadSoundPack() {
+            // Create a zip-like structure by downloading all sound files
+            const soundFiles = ['0.mp3', '1.mp3', '2.mp3', '3.mp3', '4.mp3', '5.mp3', '6.mp3', '7.mp3', '8.mp3', '9.mp3'];
+            
+            logEvent('Preparing sound pack download...', 'info');
+            
+            soundFiles.forEach((file, index) => {
+                setTimeout(() => {
+                    downloadFile(`sounds/${file}`, `aCAPTCHA-sounds-${file}`);
+                }, index * 500); // Stagger downloads to avoid browser limits
+            });
+            
+            logEvent('Sound pack download initiated (10 files)', 'success');
+        }
+
+        function generateCDNLink(version) {
+            const baseUrl = document.getElementById('cdn-base-url').value.trim();
+            
+            if (!baseUrl) {
+                logEvent('Please enter a base URL first', 'error');
+                return;
+            }
+
+            // Clean up URL (remove trailing slash)
+            const cleanUrl = baseUrl.replace(/\/$/, '');
+            
+            // Generate the CDN link
+            const filename = version === 'v1.1' ? 'api/captcha-v1.1.js' : 'api/captcha-v1.0.js';
+            const cdnLink = `${cleanUrl}/${filename}`;
+            
+            // Display the generated links
+            const linksDisplay = document.getElementById('cdn-links-display');
+            const linksContent = document.getElementById('cdn-links-content');
+            
+            const linkHtml = `
+                <div class="cdn-link-box">
+                    <div class="cdn-link-header">
+                        <span class="cdn-link-title">aCAPTCHA ${version} CDN Link</span>
+                        <button onclick="copyToClipboard('${cdnLink}')" class="cdn-copy-btn">
+                            📋 Copy Link
+                        </button>
+                    </div>
+                    <div class="cdn-link-code">
+                        ${cdnLink}
+                    </div>
+                    <div class="cdn-usage-section">
+                        <div class="cdn-usage-title">HTML Implementation</div>
+                        <div class="cdn-usage-code">
+                            &lt;script src="${cdnLink}"&gt;&lt;/script&gt;
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            linksContent.innerHTML = linkHtml;
+            linksDisplay.style.display = 'block';
+            
+            logEvent(`Generated CDN link for ${version}`, 'success');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                logEvent('CDN link copied to clipboard', 'success');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                logEvent('Failed to copy to clipboard', 'error');
+            });
+        }
+
+        // Auto-populate CDN base URL on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Try to auto-detect the current deployment URL
+            const currentUrl = window.location.origin;
+            const cdnInput = document.getElementById('cdn-base-url');
+            if (cdnInput && currentUrl !== 'null') {
+                cdnInput.value = currentUrl;
+            }
+        });
+
+        // Add this to your existing JavaScript
+        function setupCodeBlocks() {
+            const codeBlocks = document.querySelectorAll('.code-block');
+            
+            codeBlocks.forEach((block, index) => {
+                const language = block.getAttribute('data-language') || 'Code';
+                const languageIcon = getLanguageIcon(language);
+                const codeContent = block.querySelector('pre code').textContent;
+                
+                // Create new structure
+                const header = document.createElement('div');
+                header.className = 'code-block-header';
+                header.innerHTML = `
+                    <div class="code-language">
+                        <span class="code-language-icon">${languageIcon}</span>
+                        ${language}
+                    </div>
+                    <button class="code-copy-btn" onclick="copyCode(${index})">
+                        <span class="copy-icon">📋</span>
+                        <span class="copy-text">Copy</span>
+                    </button>
+                `;
+                
+                const content = document.createElement('div');
+                content.className = 'code-content';
+                content.innerHTML = block.innerHTML;
+                
+                // Clear and rebuild block
+                block.innerHTML = '';
+                block.appendChild(header);
+                block.appendChild(content);
+                
+                // Store code content for copying
+                block.setAttribute('data-code', codeContent.trim());
+            });
+        }
+
+        function getLanguageIcon(language) {
+            const icons = {
+                'HTML': '🌐',
+                'CSS': '🎨',
+                'JavaScript': '⚡',
+                'Python': '🐍',
+                'Code': '📝'
+            };
+            return icons[language] || '📝';
+        }
+
+        function copyCode(blockIndex) {
+            const block = document.querySelectorAll('.code-block')[blockIndex];
+            const code = block.getAttribute('data-code');
+            const btn = block.querySelector('.code-copy-btn');
+            
+            navigator.clipboard.writeText(code).then(() => {
+                btn.classList.add('copied');
+                btn.innerHTML = `
+                    <span class="copy-icon">✅</span>
+                    <span class="copy-text">Copied!</span>
+                `;
+                
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.innerHTML = `
+                        <span class="copy-icon">📋</span>
+                        <span class="copy-text">Copy</span>
+                    `;
+                }, 2000);
+                
+                logEvent('Code snippet copied to clipboard', 'success');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                logEvent('Failed to copy code', 'error');
+            });
+        }
+
+        // Initialize code blocks on page load
+        document.addEventListener('DOMContentLoaded', setupCodeBlocks);
+
+        // Add this function to your existing JavaScript section
+
+function showLegacyWarning() {
+    // Show the warning alert
+    const warningElement = document.getElementById('legacy-warning');
+    if (warningElement) {
+        warningElement.style.display = 'flex';
+        
+        // Scroll to make the warning visible
+        warningElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Log the warning event
+    logEvent('⚠️ Legacy version warning displayed', 'warning');
+
+    // Show a system dialog
+    const userChoice = confirm(
+        "⚠️ WARNING: Version 1.0 Notice\n\n" +
+        "• This version is discontinued and no longer maintained\n" +
+        "• Contains known security vulnerabilities\n" +
+        "• May break in modern browsers\n" +
+        "• No support or updates available\n\n" +
+        "I  strongly recommend using v1.1 instead. Are you sure you want to continue?"
+    );
+
+    if (userChoice) {
+        logEvent('⚠️ User proceeded with legacy download despite warning', 'warning');
+        // You could either disable the download or provide a link to v1.0
+        alert("Download of v1.0 is currently disabled for security reasons. Please use v1.1.");
+    } else {
+        logEvent('✅ User wisely chose not to download legacy version', 'success');
+        warningElement.style.display = 'none';
+    }
+}
+    </script>
+
+        <script>
+        // ...existing code...
+
+        // Hamburger menu logic
+        document.addEventListener('DOMContentLoaded', function () {
+            // ...existing code...
+
+            const hamburger = document.getElementById('hamburger-btn');
+            const nav = document.getElementById('header-controls');
+
+            function closeMenu() {
+                nav.classList.remove('open');
+                hamburger.classList.remove('active');
+                hamburger.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+            }
+
+            hamburger.addEventListener('click', function () {
+                const isOpen = nav.classList.toggle('open');
+                hamburger.classList.toggle('active');
+                hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                document.body.style.overflow = isOpen ? 'hidden' : '';
+            });
+
+            // Close menu on nav link click (mobile)
+            nav.querySelectorAll('.nav-link, .theme-toggle').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 900) closeMenu();
+                });
+            });
+
+            // Close menu on resize if desktop
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 900) closeMenu();
+            });
+
+            // Optional: close menu on ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeMenu();
+            });
+        });
+
+        // ...existing code...
+    </script>
+    <script src="script.js"></script>
+    
+<!-- ...existing code... -->
+</body>
+
+</html>

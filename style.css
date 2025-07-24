@@ -1,0 +1,342 @@
+
+html {
+  height: 100%;
+  width: 100%;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+h1 {
+    margin-bottom: 30px;
+    color: #333;
+    font-size: 24px;
+}
+
+/* Main CAPTCHA Container */
+.captcha-container {
+    background: white;
+    border: 2px solid #d3d3d3;
+    border-radius: 3px;
+    padding: 0;
+    margin: 20px auto;
+    width: 304px;
+    height: 78px;
+    position: relative;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.captcha-checkbox {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    height: 100%;
+}
+
+.checkbox-input {
+    display: none;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex: 1;
+}
+
+.checkmark {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #d3d3d3;
+    border-radius: 2px;
+    margin-right: 12px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.checkbox-input:checked + .checkbox-label .checkmark {
+    background-color: #4285f4;
+    border-color: #4285f4;
+}
+
+.checkbox-input:checked + .checkbox-label .checkmark::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.checkbox-text {
+    font-size: 14px;
+    color: #333;
+    user-select: none;
+}
+
+.captcha-logo {
+    margin-left: auto;
+    text-align: center;
+    font-size: 10px;
+    color: #666;
+}
+
+.logo-text {
+    color: #4285f4;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.logo-subtext {
+    color: #999;
+    font-size: 9px;
+    margin-top: 2px;
+}
+
+/* Challenge Popup */
+.challenge-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.challenge-popup.active {
+    display: flex;
+}
+
+.challenge-content {
+    background: white;
+    border-radius: 4px;
+    width: 400px;
+    max-width: 90vw;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+.challenge-header {
+    background-color: #4285f4;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.challenge-header h3 {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.close-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+.challenge-body {
+    padding: 20px;
+}
+
+.image-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin-bottom: 20px;
+    background-color: #f0f0f0;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.grid-image {
+    width: 100%;
+    height: 100px;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s ease;
+    border-radius: 2px;
+    position: relative;
+}
+
+.grid-image:hover {
+    opacity: 0.8;
+}
+
+.grid-image.selected {
+    border-color: #4285f4;
+    opacity: 0.7;
+}
+
+.grid-image.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #4285f4;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.challenge-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.refresh-btn, .audio-btn {
+    background: none;
+    border: 1px solid #d3d3d3;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 2px;
+    font-size: 16px;
+    transition: background-color 0.2s ease;
+}
+
+.refresh-btn:hover, .audio-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.verify-btn {
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    cursor: pointer;
+    border-radius: 2px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.2s ease;
+}
+
+.verify-btn:hover {
+    background-color: #3367d6;
+}
+
+.verify-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.challenge-footer {
+    background-color: #f8f9fa;
+    padding: 10px 20px;
+    border-top: 1px solid #e0e0e0;
+    text-align: right;
+}
+
+.captcha-logo-small {
+    font-size: 9px;
+    color: #666;
+}
+
+.logo-text-small {
+    color: #4285f4;
+    font-weight: bold;
+    font-size: 10px;
+}
+
+.logo-subtext-small {
+    color: #999;
+    font-size: 8px;
+    margin-top: 1px;
+}
+
+/* Success Message */
+.success-message {
+    display: none;
+    background-color: #4caf50;
+    color: white;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 20px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.success-message.show {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading animation */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
