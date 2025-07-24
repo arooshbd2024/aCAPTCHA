@@ -1,4 +1,4 @@
-# 🛡️ aCAPTCHA v2.0
+# 🛡️ aCAPTCHA v1.1
 
 aCAPTCHA is a quick, client-side CAPTCHA you can drop into your project — no backend, no tracking, no API keys, no fuss.
 
